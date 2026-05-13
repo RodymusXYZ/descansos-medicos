@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Descansos Médicos IA - Procesador Inteligente de PDFs</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --green-dark:   #0a4d2e;
+  --green:        #0d6b3f;
+  --green-mid:    #168a50;
+  --green-light:  #1ea463;
+  --green-pale:   #e8f5ee;
+  --green-pale2:  #d0ecdb;
+  --accent:       #00b86b;
+  --white:        #ffffff;
+  --gray-50:      #f8fafb;
+  --gray-100:     #f0f4f2;
+  --gray-200:     #dde8e3;
+  --gray-400:     #8aab99;
+  --gray-600:     #4d7060;
+  --gray-800:     #1a2e25;
+  --text:         #0f2318;
+  --shadow-sm:    0 1px 3px rgba(10,77,46,0.08);
+  --shadow-md:    0 4px 16px rgba(10,77,46,0.10);
+  --shadow-lg:    0 8px 32px rgba(10,77,46,0.12);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--gray-50);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top bar */
+.topbar {
+  background: var(--green-dark);
+  padding: 10px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.topbar-dot {
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+.topbar-text {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+}
+.topbar-right {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  font-family: 'JetBrains Mono', monospace;
+  word-break: break-all;
+  text-align: right;
+}
+
+/* Main layout */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+}
+
+.container { width: 100%; max-width: 680px; }
+
+/* Header card */
+.header-card {
+  background: linear-gradient(135deg, var(--green-dark) 0%, var(--green) 60%, var(--green-mid) 100%);
+  border-radius: 20px 20px 0 0;
+  padding: 36px 36px 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.header-card::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 200px; height: 200px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 50%;
+}
+.header-card::after {
+  content: '';
+  position: absolute;
+  bottom: -40px; left: -20px;
+  width: 140px; height: 140px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 50%;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.header-icon {
+  width: 52px; height: 52px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+}
+.header-icon svg { width: 24px; height: 24px; fill: white; }
+
+.header-titles h1 {
+  font-size: 20px;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.3px;
+}
+.header-titles p {
+  font-size: 13px;
+  color: rgba(255,255,255,0.65);
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+.header-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.hstat {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  padding: 10px 12px;
+  text-align: center;
+}
+.hstat-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 3px;
+}
+.hstat-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Body card */
+.body-card {
+  background: var(--white);
+  border-radius: 0 0 20px 20px;
+  padding: 32px 36px 36px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--gray-200);
+  border-top: none;
+}
+
+/* Button */
+.btn-main {
+  width: 100%;
+  padding: 15px 24px;
+  background: linear-gradient(135deg, var(--green) 0%, var(--green-light) 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.25s;
+  box-shadow: 0 4px 12px rgba(13,107,63,0.3);
+}
+.btn-main:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(13,107,63,0.35);
+  background: linear-gradient(135deg, var(--green-mid) 0%, var(--accent) 100%);
+}
+.btn-main:active:not(:disabled) { transform: translateY(0); }
+.btn-main:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-main svg { width: 18px; height: 18px; fill: white; }
+
+/* Progress */
+.progress-wrap { display: none; margin-top: 24px; }
+.progress-wrap.show { display: block; }
+
+.prog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.prog-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green);
+}
+.prog-pct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--green-light);
+}
+
+.prog-track {
+  height: 8px;
+  background: var(--gray-100);
+  border-radius: 99px;
+  overflow: hidden;
+  border: 1px solid var(--gray-200);
+}
+.prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), var(--accent));
+  border-radius: 99px;
+  transition: width 0.5s ease;
+  width: 0%;
+  position: relative;
+}
+.prog-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.prog-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 12px;
+}
+.pstep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.pstep-dot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--gray-100);
+  border: 2px solid var(--gray-200);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s;
+  font-size: 11px;
+}
+.pstep-dot svg { width: 13px; height: 13px; fill: var(--gray-400); transition: all 0.3s; }
+.pstep-name {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--gray-400);
+  transition: all 0.3s;
+}
+
+.pstep.active .pstep-dot { background: var(--green-pale); border-color: var(--green-light); box-shadow: 0 0 0 4px rgba(30,164,99,0.12); }
+.pstep.active .pstep-dot svg { fill: var(--green-light); }
+.pstep.active .pstep-name { color: var(--green); }
+
+.pstep.done .pstep-dot { background: var(--green); border-color: var(--green); }
+.pstep.done .pstep-dot svg { fill: white; }
+.pstep.done .pstep-name { color: var(--green); }
+
+.prog-log {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--gray-600);
+  min-height: 36px;
+}
+.prog-log span { color: var(--green-light); font-weight: 500; }
+
+/* Status messages */
+.status {
+  display: none;
+  margin-top: 20px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  align-items: center;
+  gap: 10px;
+}
+.status.show { display: flex; }
+.status.success { background: var(--green-pale); border: 1px solid var(--green-pale2); color: var(--green-dark); }
+.status.error { background: #fff0f3; border: 1px solid #ffc8d3; color: #9b1c2e; }
+.status.warning { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+.status.info { background: #e8f0fe; border: 1px solid #bdd4ff; color: #1e40af; }
+.status svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: var(--gray-100);
+  margin: 24px 0;
+}
+
+/* Results */
+.results { display: none; }
+.results.show { display: block; }
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  border-radius: 12px;
+  padding: 16px 12px;
+  text-align: center;
+  border: 1px solid;
+  transition: transform 0.2s;
+}
+
+.summary-card:hover { transform: translateY(-2px); }
+
+.summary-card.total {
+  background: var(--gray-50);
+  border-color: var(--gray-200);
+}
+.summary-card.ok {
+  background: var(--green-pale);
+  border-color: var(--green-pale2);
+}
+.summary-card.err {
+  background: #fff5f5;
+  border-color: #fecaca;
+}
+
+.summary-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 10px;
+}
+.summary-card.total .summary-icon { background: var(--gray-100); }
+.summary-card.ok .summary-icon { background: var(--green-pale2); }
+.summary-card.err .summary-icon { background: #fee2e2; }
+
+.summary-icon svg { width: 18px; height: 18px; }
+.summary-card.total .summary-icon svg { fill: var(--gray-600); }
+.summary-card.ok .summary-icon svg { fill: var(--green); }
+.summary-card.err .summary-icon svg { fill: #dc2626; }
+
+.summary-num {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.summary-card.total .summary-num { color: var(--text); }
+.summary-card.ok .summary-num { color: var(--green-dark); }
+.summary-card.err .summary-num { color: #dc2626; }
+
+.summary-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.summary-card.total .summary-label { color: var(--gray-600); }
+.summary-card.ok .summary-label { color: var(--green); }
+.summary-card.err .summary-label { color: #dc2626; }
+
+/* Results title */
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.results-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.results-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 99px;
+  background: var(--green-pale);
+  color: var(--green-dark);
+  border: 1px solid var(--green-pale2);
+}
+
+.table-scroll {
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  overflow: hidden;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.table-scroll::-webkit-scrollbar { width: 4px; }
+.table-scroll::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 99px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead tr { background: var(--gray-50); position: sticky; top: 0; }
+th { padding: 10px 12px; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray-600); border-bottom: 1px solid var(--gray-200); }
+td { padding: 9px 12px; border-bottom: 1px solid var(--gray-100); color: var(--text); font-size: 11px; vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--gray-50); }
+
+.tag-ok { color: var(--green); font-weight: 700; }
+.tag-err { color: #dc2626; font-weight: 700; }
+.file-name { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--gray-600); }
+
+/* Action buttons */
+.actions { display: none; gap: 10px; margin-top: 20px; }
+.actions.show { display: grid; grid-template-columns: 1fr 1fr; }
+
+.action-btn {
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: all 0.2s;
+  border: none;
+}
+.action-btn.sheets {
+  background: var(--green-pale);
+  border: 1px solid var(--green-pale2);
+  color: var(--green-dark);
+}
+.action-btn.sheets:hover { background: var(--green-pale2); }
+.action-btn.download {
+  background: linear-gradient(135deg, var(--green) 0%, var(--green-light) 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(13,107,63,0.25);
+}
+.action-btn.download:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(13,107,63,0.3); }
+.action-btn svg { width: 15px; height: 15px; fill: currentColor; }
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 11px;
+  color: var(--gray-400);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Spinner */
+.spin { width: 17px; height: 17px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: rotate 0.8s linear infinite; flex-shrink: 0; }
+@keyframes rotate { to { transform: rotate(360deg); } }
+
+/* Badge */
+.badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 600;
+}
+.badge-success { background: var(--green-pale2); color: var(--green-dark); }
+.badge-warning { background: #fffbeb; color: #92400e; }
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--gray-400);
+}
+.empty-state svg {
+  width: 48px;
+  height: 48px;
+  fill: var(--gray-200);
+  margin-bottom: 12px;
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-dot"></div>
+    <span class="topbar-text">Sistema activo</span>
+  </div>
+  <span class="topbar-right">n8n Webhook · Procesamiento Inteligente de PDFs</span>
+</div>
+
+<div class="main">
+  <div class="container">
+
+    <div class="header-card">
+      <div class="header-top">
+        <div class="header-icon">
+          <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+        </div>
+        <div class="header-titles">
+          <h1>Descansos Médicos IA</h1>
+          <p>Proceso automático de lectura de certificados médicos</p>
+        </div>
+      </div>
+      <div class="header-stats">
+        <div class="hstat"><div class="hstat-label">Fuente</div><div class="hstat-value">Google Drive</div></div>
+        <div class="hstat"><div class="hstat-label">Motor IA</div><div class="hstat-value">GPT-4o</div></div>
+        <div class="hstat"><div class="hstat-label">Destino</div><div class="hstat-value">Google Sheets</div></div>
+      </div>
+    </div>
+
+    <div class="body-card">
+
+      <button class="btn-main" id="btnEjecutar" onclick="ejecutar()">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        Ejecutar Procesamiento
+      </button>
+
+      <!-- Progress -->
+      <div class="progress-wrap" id="progressWrap">
+        <div class="prog-header">
+          <span class="prog-label" id="progLabel">Iniciando...</span>
+          <span class="prog-pct" id="progPct">0%</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+        <div class="prog-steps">
+          <div class="pstep" id="ps1">
+            <div class="pstep-dot"><svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg></div>
+            <span class="pstep-name">Drive</span>
+          </div>
+          <div class="pstep" id="ps2">
+            <div class="pstep-dot"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></div>
+            <span class="pstep-name">OCR</span>
+          </div>
+          <div class="pstep" id="ps3">
+            <div class="pstep-dot"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></div>
+            <span class="pstep-name">GPT-4o</span>
+          </div>
+          <div class="pstep" id="ps4">
+            <div class="pstep-dot"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></div>
+            <span class="pstep-name">Sheets</span>
+          </div>
+        </div>
+        <div class="prog-log"><span id="logText">Conectando con el servidor...</span></div>
+      </div>
+
+      <!-- Status Messages -->
+      <div class="status success" id="stSuccess">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        <span id="stSuccessText">Procesamiento completado exitosamente</span>
+      </div>
+      <div class="status error" id="stError">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        <span id="stErrorText">Error al conectar con el servidor</span>
+      </div>
+      <div class="status warning" id="stWarning">
+        <svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+        <span>El proceso se inició pero tardó más de lo esperado. Los datos se estarán guardando en segundo plano. Revisa el Sheet en unos minutos.</span>
+      </div>
+      <div class="status info" id="stInfo">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        <span id="stInfoText">Información</span>
+      </div>
+
+      <!-- Results Section -->
+      <div class="results" id="resultsDiv">
+        <div class="divider"></div>
+        
+        <!-- Summary Cards -->
+        <div class="summary-grid">
+          <div class="summary-card total">
+            <div class="summary-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></div>
+            <div class="summary-num" id="sumTotal">0</div>
+            <div class="summary-label">Total Procesados</div>
+          </div>
+          <div class="summary-card ok">
+            <div class="summary-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></div>
+            <div class="summary-num" id="sumOk">0</div>
+            <div class="summary-label">Con Datos Válidos</div>
+          </div>
+          <div class="summary-card err">
+            <div class="summary-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
+            <div class="summary-num" id="sumErrors">0</div>
+            <div class="summary-label">Con Errores</div>
+          </div>
+        </div>
+
+        <!-- Results Table -->
+        <div class="results-header">
+          <div class="results-title">📋 Registros Procesados</div>
+          <div class="results-badge" id="recordsBadge">Últimos 15</div>
+        </div>
+        <div class="table-scroll" id="tableContainer">
+          <div class="empty-state" id="emptyState">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+            <p>No hay datos aún. Ejecuta el procesamiento para ver resultados.</p>
+          </div>
+          <table style="display: none;" id="dataTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Archivo</th>
+                <th>Código Trabajador</th>
+                <th>Fecha Inicio</th>
+                <th>Fecha Término</th>
+                <th>Diagnóstico</th>
+                <th>CMP</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions" id="actionsDiv">
+        <a class="action-btn sheets" id="sheetLink" href="#" target="_blank">
+          <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+          Ver Google Sheet
+        </a>
+        <button class="action-btn download" onclick="descargarExcel()">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          Descargar Excel
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">Sistema de Gestión de Descansos Médicos - RRHH · Procesamiento con IA · v3.0</div>
+
+<script>
+const WEBHOOK = 'https://ricardox5.app.n8n.cloud/webhook/ejecutar-descansos';
+const SHEET_ID = '15nMRZOROuCG80HGXiLaJZLePI7yVUJQ4S4y-S3VPuXc';
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/15nMRZOROuCG80HGXiLaJZLePI7yVUJQ4S4y-S3VPuXc/edit?usp=drivesdk';
+let progInterval = null;
+let currentProcessedData = [];
+
+const SIM = [
+  { pct: 10, label: 'Conectando con Google Drive...', step: 0, log: 'Buscando PDFs en la carpeta de Drive...' },
+  { pct: 24, label: 'Descargando archivos PDF...', step: 0, log: 'Descargando certificados médicos desde Drive...' },
+  { pct: 40, label: 'Procesando OCR...', step: 1, log: 'Extrayendo texto de los PDFs con OCR.space...' },
+  { pct: 55, label: 'Analizando con GPT-4o...', step: 2, log: 'Interpretando certificados médicos con IA...' },
+  { pct: 70, label: 'Extrayendo y validando campos...', step: 2, log: 'Validando DNI, fechas y diagnósticos...' },
+  { pct: 84, label: 'Escribiendo en Google Sheets...', step: 3, log: 'Guardando resultados en el sheet de destino...' },
+  { pct: 93, label: 'Finalizando procesamiento...', step: 3, log: 'Verificando integridad de los registros...' },
+];
+
+function setProgress(pct, label, stepIdx) {
+  const fill = document.getElementById('progFill');
+  if (fill) fill.style.width = pct + '%';
+  const pctEl = document.getElementById('progPct');
+  if (pctEl) pctEl.textContent = pct + '%';
+  const labelEl = document.getElementById('progLabel');
+  if (labelEl) labelEl.textContent = label;
+  
+  ['ps1','ps2','ps3','ps4'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.className = 'pstep' + (i < stepIdx ? ' done' : i === stepIdx ? ' active' : '');
+    }
+  });
+}
+
+function setLog(msg) {
+  const logEl = document.getElementById('logText');
+  if (logEl) logEl.textContent = msg;
+}
+
+function hideStatus() {
+  ['stSuccess','stError','stWarning','stInfo'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('show');
+  });
+}
+
+function showStatus(type, message) {
+  hideStatus();
+  const el = document.getElementById(`st${type}`);
+  if (el) {
+    if (type === 'Success' && document.getElementById('stSuccessText')) {
+      document.getElementById('stSuccessText').textContent = message;
+    } else if (type === 'Error' && document.getElementById('stErrorText')) {
+      document.getElementById('stErrorText').textContent = message;
+    } else if (type === 'Info' && document.getElementById('stInfoText')) {
+      document.getElementById('stInfoText').textContent = message;
+    }
+    el.classList.add('show');
+  }
+}
+
+function extraerDatosDeRespuesta(respuesta) {
+  let datosProcesados = [];
+  
+  console.log('Respuesta recibida:', respuesta);
+  
+  // Caso 1: Es un array directamente
+  if (Array.isArray(respuesta)) {
+    datosProcesados = respuesta;
+  }
+  // Caso 2: Tiene propiedad data que es array
+  else if (respuesta.data && Array.isArray(respuesta.data)) {
+    datosProcesados = respuesta.data;
+  }
+  // Caso 3: Tiene propiedad results que es array
+  else if (respuesta.results && Array.isArray(respuesta.results)) {
+    datosProcesados = respuesta.results;
+  }
+  // Caso 4: Buscar cualquier propiedad que sea array con objetos que tengan campos de certificados
+  else {
+    for (const key in respuesta) {
+      if (Array.isArray(respuesta[key]) && respuesta[key].length > 0) {
+        const firstItem = respuesta[key][0];
+        // Verificar si el objeto tiene campos típicos de certificado
+        if (firstItem && (firstItem.codigo_trabajador || firstItem.fecha_inicio || 
+            firstItem.comentario || firstItem.cmp || firstItem.nombre_archivo)) {
+          datosProcesados = respuesta[key];
+          console.log(`Encontrados datos en propiedad: ${key}`);
+          break;
+        }
+      }
+    }
+  }
+  
+  // Normalizar cada item: asegurar que tenga json como propiedad si es necesario
+  if (datosProcesados.length > 0 && !datosProcesados[0].hasOwnProperty('codigo_trabajador') && 
+      datosProcesados[0].json) {
+    datosProcesados = datosProcesados.map(item => item.json || item);
+  }
+  
+  return datosProcesados;
+}
+
+function mostrarResultados(datos) {
+  currentProcessedData = datos;
+  const total = datos.length;
+  
+  // Contar registros con datos válidos (que tengan al menos código de trabajador o fecha)
+  const validos = datos.filter(item => 
+    (item.codigo_trabajador && item.codigo_trabajador !== '') || 
+    (item.fecha_inicio && item.fecha_inicio !== '')
+  ).length;
+  
+  const errores = total - validos;
+  
+  // Actualizar summary
+  document.getElementById('sumTotal').textContent = total;
+  document.getElementById('sumOk').textContent = validos;
+  document.getElementById('sumErrors').textContent = errores;
+  
+  // Actualizar tabla
+  const table = document.getElementById('dataTable');
+  const tbody = document.getElementById('tableBody');
+  const emptyState = document.getElementById('emptyState');
+  const tableContainer = document.getElementById('tableContainer');
+  
+  if (total === 0) {
+    table.style.display = 'none';
+    emptyState.style.display = 'block';
+    return;
+  }
+  
+  table.style.display = 'table';
+  emptyState.style.display = 'none';
+  
+  tbody.innerHTML = '';
+  
+  // Mostrar últimos 15 registros (o todos si son menos)
+  const mostrar = datos.slice(-15);
+  mostrar.forEach((item, idx) => {
+    const row = tbody.insertRow();
+    const globalIdx = datos.length - mostrar.length + idx + 1;
+    
+    // Verificar si el registro es válido
+    const esValido = (item.codigo_trabajador && item.codigo_trabajador !== '') || 
+                     (item.fecha_inicio && item.fecha_inicio !== '');
+    
+    row.insertCell(0).textContent = globalIdx;
+    row.insertCell(1).innerHTML = `<span class="file-name" title="${item.nombre_archivo || ''}">${truncar(item.nombre_archivo || 'Desconocido', 40)}</span>`;
+    row.insertCell(2).textContent = item.codigo_trabajador || '—';
+    row.insertCell(3).innerHTML = item.fecha_inicio ? `<span class="tag-ok">${item.fecha_inicio}</span>` : '—';
+    row.insertCell(4).innerHTML = item.fecha_termino ? `<span class="tag-ok">${item.fecha_termino}</span>` : '—';
+    row.insertCell(5).innerHTML = item.comentario ? truncar(item.comentario, 35) : '—';
+    row.insertCell(6).textContent = item.cmp || '—';
+    row.insertCell(7).innerHTML = esValido ? 
+      '<span class="badge badge-success">Válido</span>' : 
+      '<span class="badge badge-warning">Pendiente</span>';
+  });
+  
+  // Actualizar badge
+  const badge = document.getElementById('recordsBadge');
+  if (badge) {
+    badge.textContent = total > 15 ? `Mostrando últimos 15 de ${total}` : `Total: ${total} registros`;
+  }
+  
+  // Actualizar link del sheet
+  const sheetLink = document.getElementById('sheetLink');
+  if (sheetLink) {
+    sheetLink.href = SHEET_URL;
+  }
+}
+
+function truncar(texto, maxLen) {
+  if (!texto) return '—';
+  if (texto.length <= maxLen) return texto;
+  return texto.substring(0, maxLen) + '...';
+}
+
+function actualizarProgresoSimulado() {
+  let idx = 0;
+  return setInterval(() => {
+    if (idx < SIM.length) {
+      const s = SIM[idx++];
+      setProgress(s.pct, s.label, s.step);
+      setLog(s.log);
+    }
+  }, 1800);
+}
+
+async function ejecutar() {
+  const btn = document.getElementById('btnEjecutar');
+  const progressWrap = document.getElementById('progressWrap');
+  const resultsDiv = document.getElementById('resultsDiv');
+  const actionsDiv = document.getElementById('actionsDiv');
+  
+  hideStatus();
+  
+  if (progressWrap) progressWrap.classList.add('show');
+  if (resultsDiv) resultsDiv.classList.remove('show');
+  if (actionsDiv) actionsDiv.classList.remove('show');
+  
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spin"></div> Procesando documentos...';
+  }
+  
+  setProgress(5, 'Iniciando conexión...', 0);
+  setLog('Conectando con el servidor n8n...');
+  
+  // Iniciar simulación visual
+  const simInterval = actualizarProgresoSimulado();
+  
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minutos timeout
+    
+    const response = await fetch(WEBHOOK, {
+      method: 'POST',
+      mode: 'cors',
+      signal: controller.signal,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ trigger: 'ejecutar', source: 'webapp' })
+    });
+    
+    clearTimeout(timeoutId);
+    clearInterval(simInterval);
+    
+    let responseData = null;
+    const contentType = response.headers.get('content-type') || '';
+    
+    if (contentType.includes('application/json')) {
+      responseData = await response.json();
+    } else {
+      const textResponse = await response.text();
+      console.log('Respuesta no JSON (primeros 200 chars):', textResponse.substring(0, 200));
+      
+      // Intentar parsear como JSON si parece ser uno
+      if (textResponse.trim().startsWith('{') || textResponse.trim().startsWith('[')) {
+        try {
+          responseData = JSON.parse(textResponse);
+        } catch (e) {
+          console.warn('No se pudo parsear como JSON');
+        }
+      }
+    }
+    
+    setProgress(100, 'Procesamiento completado', 4);
+    setLog('Todos los documentos han sido procesados exitosamente.');
+    
+    // Extraer datos procesados
+    let datosProcesados = [];
+    let mensajeExito = 'Procesamiento completado exitosamente.';
+    
+    if (responseData) {
+      datosProcesados = extraerDatosDeRespuesta(responseData);
+      
+      if (datosProcesados.length > 0) {
+        mensajeExito = `✅ Procesamiento completado — ${datosProcesados.length} archivo(s) procesado(s) correctamente.`;
+        mostrarResultados(datosProcesados);
+        if (resultsDiv) resultsDiv.classList.add('show');
+      } else {
+        mensajeExito = '⚠️ Procesamiento completado, pero no se recibieron datos detallados. Revisa el Google Sheet para ver los resultados.';
+        showStatus('Info', mensajeExito);
+      }
+    } else {
+      mensajeExito = 'Procesamiento completado. Revisa el Google Sheet para ver los resultados.';
+      showStatus('Info', mensajeExito);
+    }
+    
+    showStatus('Success', mensajeExito);
+    
+    if (actionsDiv) actionsDiv.classList.add('show');
+    
+  } catch (error) {
+    clearInterval(simInterval);
+    console.error('Error en la ejecución:', error);
+    
+    if (error.name === 'AbortError') {
+      setProgress(90, 'Tiempo de espera agotado', 3);
+      setLog('El proceso continúa en segundo plano...');
+      showStatus('Warning', '');
+    } else {
+      setProgress(0, 'Error de conexión', 0);
+      setLog(`Error: ${error.message || 'No se pudo conectar con el servidor'}`);
+      showStatus('Error', `Error: ${error.message || 'No se pudo conectar con el servidor n8n'}`);
+    }
+    
+    if (actionsDiv) actionsDiv.classList.add('show');
+    
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Ejecutar Procesamiento';
+    }
+  }
+}
+
+function descargarExcel() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=xlsx`;
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'Descansos_Medicos_IA.xlsx';
+  link.target = '_blank';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+// Inicializar link del sheet
+document.addEventListener('DOMContentLoaded', () => {
+  const sheetLink = document.getElementById('sheetLink');
+  if (sheetLink) {
+    sheetLink.href = SHEET_URL;
+  }
+});
+</script>
+</body>
+</html>
